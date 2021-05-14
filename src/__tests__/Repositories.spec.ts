@@ -64,8 +64,12 @@ describe('Repositories', () => {
     usersRepository = new UsersRepository();
     gamesRepository = new GamesRepository();
 
+    await connection.query('DROP TABLE IF EXISTS order_items');
+    await connection.query('DROP TABLE IF EXISTS orders');
     await connection.query('DROP TABLE IF EXISTS users_games_games');
+    await connection.query('DROP TABLE IF EXISTS game_genres');
     await connection.query('DROP TABLE IF EXISTS users');
+    await connection.query('DROP TABLE IF EXISTS genres');
     await connection.query('DROP TABLE IF EXISTS games');
     await connection.query('DROP TABLE IF EXISTS migrations');
 

@@ -14,6 +14,18 @@ export class migration1616108470200 implements MigrationInterface {
       'CREATE TABLE "users_games_games" ("usersId" uuid NOT NULL, "gamesId" uuid NOT NULL, CONSTRAINT "PK_cd4067d574477fd5c7693bc7872" PRIMARY KEY ("usersId", "gamesId"))',
     );
     await queryRunner.query(
+      'CREATE TABLE "genres" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "description" character varying NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_genres" PRIMARY KEY ("id"))'
+    );
+    await queryRunner.query(
+      'CREATE TABLE "game_genres" ("gameId" uuid NOT NULL, "genreId" uuid NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_game_genres" PRIMARY KEY ("gameId", "genreId"))'
+    );
+    await queryRunner.query(
+      'CREATE TABLE "orders" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "date" TIMESTAMP NOT NULL, "userId" uuid NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_orders" PRIMARY KEY ("id"))'
+    );
+    await queryRunner.query(
+      'CREATE TABLE "order_items" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "orderId" uuid NOT NULL, "gameId" uuid NOT NULL, "quantity" NUMERIC, "amount" NUMERIC, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_order_items" PRIMARY KEY ("id"))'
+    );
+    await queryRunner.query(
       'CREATE INDEX "IDX_e5263d029d8644de829aae5c35" ON "users_games_games" ("usersId") ',
     );
     await queryRunner.query(
@@ -25,6 +37,18 @@ export class migration1616108470200 implements MigrationInterface {
     await queryRunner.query(
       'ALTER TABLE "users_games_games" ADD CONSTRAINT "FK_934b0d8f9d0084c97d3876ad32d" FOREIGN KEY ("gamesId") REFERENCES "games"("id") ON DELETE CASCADE ON UPDATE NO ACTION',
     );
+    await queryRunner.query(
+      'ALTER TABLE "game_genres" ADD CONSTRAINT "FK_games_genres_games" FOREIGN KEY ("gameId") REFERENCES "games" ("id") ON DELETE CASCADE ON UPDATE NO ACTION'
+    );
+    await queryRunner.query(
+      'ALTER TABLE "game_genres" ADD CONSTRAINT "FK_games_genres_genres" FOREIGN KEY ("genreId") REFERENCES "genres" ("id") ON DELETE CASCADE ON UPDATE NO ACTION'
+    );
+    await queryRunner.query(
+      'ALTER TABLE "orders" ADD CONSTRAINT "FK_orders_user" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE NO ACTION'
+    );
+    await queryRunner.query(
+      'ALTER TABLE "order_items" ADD CONSTRAINT "FK_order_items_games" FOREIGN KEY ("gameId") REFERENCES "games" ("id") ON DELETE CASCADE ON UPDATE NO ACTION'
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
@@ -34,10 +58,26 @@ export class migration1616108470200 implements MigrationInterface {
     await queryRunner.query(
       'ALTER TABLE "users_games_games" DROP CONSTRAINT "FK_e5263d029d8644de829aae5c35a"',
     );
+    await queryRunner.query(
+      'ALTER TABLE "game_genres" DROP CONSTRAINT "FK_games_genres_games"',
+    );
+    await queryRunner.query(
+      'ALTER TABLE "game_genres" DROP CONSTRAINT "FK_games_genres_genres"',
+    );
+    await queryRunner.query(
+      'ALTER TABLE "orders" DROP CONSTRAINT "FK_orders_user"',
+    );
+    await queryRunner.query(
+      'ALTER TABLE "order_items" DROP CONSTRAINT "FK_order_items_games"',
+    );
     await queryRunner.query('DROP INDEX "IDX_934b0d8f9d0084c97d3876ad32"');
     await queryRunner.query('DROP INDEX "IDX_e5263d029d8644de829aae5c35"');
+    await queryRunner.query('DROP TABLE "order_items"');
+    await queryRunner.query('DROP TABLE "orders"');
     await queryRunner.query('DROP TABLE "users_games_games"');
+    await queryRunner.query('DROP TABLE "game_genres"');
     await queryRunner.query('DROP TABLE "games"');
+    await queryRunner.query('DROP TABLE "genres"');
     await queryRunner.query('DROP TABLE "users"');
   }
 }
